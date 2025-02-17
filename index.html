@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snap to Code</title>
+</head>
+<body>
+    <h1>Snap to Code</h1>
+
+    <form id="folderForm">
+        <label>Input Folder Path:</label>
+        <input type="text" id="input_path" name="input_path" placeholder="Enter input folder path">
+        <br><br>
+
+        <label>Output Folder Path:</label>
+        <input type="text" id="output_path" name="output_path" placeholder="Enter output folder path">
+        <br><br>
+
+        <button type="button" onclick="submitForm()">Generate Code</button>
+    </form>
+
+    <script>
+        function submitForm() {
+            let inputPath = document.getElementById("input_path").value;
+            let outputPath = document.getElementById("output_path").value;
+
+            if (!inputPath || !outputPath) {
+                alert("Please enter both input and output folder paths.");
+                return;
+            }
+
+            fetch("/generate_code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ input_path: inputPath, output_path: outputPath })
+            })
+            .then(response => response.json())
+            .then(data => alert("Code generated: " + JSON.stringify(data)))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
