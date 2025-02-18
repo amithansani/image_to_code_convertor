@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Snap to Code</title>
+    <title>Generate Code</title>
 </head>
 <body>
-    <h1>Snap to Code</h1>
+    <h1>Generate Code</h1>
 
-    <form id="folderForm">
-        <label>Input Folder Path:</label>
-        <input type="text" id="input_path" name="input_path" placeholder="Enter input folder path">
-        <br><br>
+    <form onsubmit="submitForm(event)">
+        <label for="input_path">Input Folder Path:</label>
+        <input type="text" id="input_path" required><br><br>
 
-        <label>Output Folder Path:</label>
-        <input type="text" id="output_path" name="output_path" placeholder="Enter output folder path">
-        <br><br>
+        <label for="output_path">Output Folder Path:</label>
+        <input type="text" id="output_path" required><br><br>
 
-        <button type="button" onclick="submitForm()">Generate Code</button>
+        <button type="submit">Generate Code</button>
     </form>
 
     <script>
-        function submitForm() {
+        function submitForm(event) {
+            event.preventDefault(); // Prevent form submission to allow JS handling
+
             let inputPath = document.getElementById("input_path").value;
             let outputPath = document.getElementById("output_path").value;
 
@@ -28,13 +28,22 @@
                 return;
             }
 
+            sessionStorage.setItem("input_path", inputPath);
+            sessionStorage.setItem("output_path", outputPath);
+
             fetch("/generate_code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ input_path: inputPath, output_path: outputPath })
             })
             .then(response => response.json())
-            .then(data => alert("Code generated: " + JSON.stringify(data)))
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    window.location.href = "/progress.html"; // Redirect to progress page
+                }
+            })
             .catch(error => console.error("Error:", error));
         }
     </script>

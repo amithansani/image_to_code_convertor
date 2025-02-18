@@ -1,10 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>Processing...</title>
 </head>
 <body>
-$END$
+    <h1>Generating Code...</h1>
+
+    <div id="progress-container"></div>
+    <div id="success-message" style="display:none;">
+        <h2>Project is successfully generated!</h2>
+    </div>
+
+    <script>
+        function addFileName(fileName) {
+            let container = document.getElementById("progress-container");
+
+            let p = document.createElement("p");
+            p.innerText = `Generated File: ${fileName}`;
+
+            container.appendChild(p);
+        }
+
+        function showSuccessMessage() {
+            let successMessage = document.getElementById("success-message");
+            successMessage.style.display = "block";  // Show the success message
+            document.title = "Processed";  // Change the page title to "Processed"
+        }
+
+        function startProcessing() {
+            let eventSource = new EventSource("/progress"); // Listening to `/progress`
+            let fileProgress = {};
+
+            eventSource.onmessage = function (event) {
+                let data = event.data;
+                console.log(data); // Debugging step to check incoming data
+
+                if (data.startsWith("Processing")) {
+                    let fileName = data.replace("Processing ", "").trim();
+
+                    if (!fileProgress[fileName]) {
+                        addFileName(fileName);
+                        fileProgress[fileName] = 0;
+                    }
+
+                    if (fileProgress[fileName] >= 100) {
+                        console.log(fileName + " complete!");
+                    }
+                }
+
+                if (data.includes("Project created successfully!")) {
+                    eventSource.close();
+                    showSuccessMessage(); // Show the success message and update title once all files are processed
+                }
+            };
+
+            eventSource.onerror = function () {
+                eventSource.close();
+                alert("Error processing files.");
+            };
+        }
+
+        window.onload = startProcessing;
+    </script>
 </body>
 </html>
