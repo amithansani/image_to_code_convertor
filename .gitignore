@@ -129,6 +129,7 @@ celerybeat.pid
 
 # Environments
 snap_to_code/src/.env
+.env
 .venv
 env/
 venv/
